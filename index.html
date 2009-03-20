@@ -1,0 +1,232 @@
+<html>
+<head>
+<link rel="shortcut icon" href="http://haskell.org/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="http://haskell.org/favicon.ico" type="image/x-icon" />
+<title>HXQ: A Compiler from XQuery to Haskell</title>
+</head>
+<body>
+<center>
+<h1>HXQ: A Compiler from XQuery to Haskell</h1>
+<h3>Download <a href="/HXQ-0.16.0.tar.gz">HXQ-0.16.0.tar.gz</a></h3>
+</center>
+<p>
+<h2>Description</h2>
+<p>
+HXQ is a fast and space-efficient translator
+from <a href="http://www.w3.org/XML/Query/">XQuery</a> (the standard
+query language for XML) to embedded Haskell code. The translation is
+based on <a href="http://haskell.org/haskellwiki/Template_Haskell">Template
+Haskell</a>. HXQ takes full advantage of Haskell's lazy evaluation to
+keep in memory only those parts of XML data needed at each point of
+evaluation, thus performing stream-based evaluation for forward
+queries (queries that do not contain backward steps). This results to
+an implementation that is as fast and space-efficient as any
+stream-based implementation based on SAX filters or finite state
+machines. Furthermore, the coding is far simpler and extensible since
+it is based on XML trees, rather than SAX events.  Since HXQ uses lazy
+evaluation, you get the first results of non-blocking queries
+immediately, while the non-streaming XQuery processors must first parse the
+entire input file and construct the whole XML tree in memory before
+they produce any output.
+<p>
+Finally, HXQ can store XML documents in a relational database
+(currently MySQL or SQLite), by shredding XML into relational tuples,
+and by translating XQueries over the shredded documents into optimized
+SQL queries. The mapping to relational tables is based on the
+document's structural summary, which is derived from the document data
+rather than from a schema.  It uses hybrid inlining to inline attributes
+and non-repeating elements into a single table, thus resulting to a
+compact relational schema. For each such mapping, HXQ synthesizes an XQuery
+that reconstructs the original XML document from the shredded data.
+This XQuery is fused with the user queries using partial evaluation
+techniques and parts of the resulting query are mapped to SQL queries
+using code folding rules so that all relevant predicates are promoted
+to SQL. This pushes most evaluation to the database query engine, thus
+resulting to a fast execution over large data sets.
+<p>
+<h2>Performance</h2>
+<p>
+HXQ shines best when used for data intensive applications. For example,
+the XQuery in <a href="Test2.hs">Test2.hs</a>, which is against
+the <a href="http://dblp.uni-trier.de/xml/">DBLP XML document</a>
+(420MB), runs in 36 seconds on my laptop PC and uses a maximum of
+3.2MB of heap space (using the runtime options <tt>+RTS -H2m -M3.2m</tt>).
+(All results are taken on an Intel Core 2 Duo
+2.2GHz 2GB running ghc-6.8.3 on Linux 2.6.27 kernel.)  To contrast
+this, <a href="http://www.gnu.org/software/qexo/">Qexo</a>, which
+compiles XQueries to Java bytecode, takes 1 minute 17 seconds and uses
+1400MB of heap space for the same query,
+while <a href="http://xqilla.sourceforge.net/HomePage">XQilla</a>,
+which is written in C++, takes 1 minute and 10 secs and uses 1150MB of
+heap space.  For simple XPath queries, the fastest implementation I
+have ever tried is
+using <a href="http://lambda.uta.edu/cse5335/examples/sax.java">SAX
+pipelines</a>, which runs in 17secs and needs 3MB heap. Unfortunately,
+it is very hard to implement complex XQuery constructs
+using <a href="http://lambda.uta.edu/XStreamQuery.pdf">SAX</a>,
+and one may end up simulating lazy evaluation using ad-hoc techniques.
+<p>
+For better performance in data intensive applications, one may use the
+database capabilities of HXQ.  For example, when the DBLP file is
+shredded into a MySQL database and the appropriate index is created,
+the above query runs in 90 milliseconds.
+<p>
+HXQ uses the <a href="http://www.flightlab.com/~joe/hxml/">HXML parser
+for XML</a> (developed by Joe English), which is included in the
+source. I have also tried hexpat, tagsoup, HXT, and HaXML Xtract, but
+they all have space leaks.
+<p>
+HXQ has two parsers: one that generates simple rose trees from XML
+documents, which can be processed by forward queries without space
+leaks, and another parser where each tree node has a reference to its
+parent.  Some, but not all, backward axis steps (such as the parent
+axis /..) are removed from a query using optimization rules.  If there
+are backward axis steps left in the query, then HXQ uses the latter
+parser, which may result to a performance penalty due to space leaks.
+<p>
+<h2>Installation Instructions (HXQ without Database Connectivity)</h2>
+<p>
+HXQ can be installed on most platforms but I have only tested it on
+Linux, Mac OS X, and Windows XP.  The simplest installation is without database
+connectivity (ie, it can only process XQueries against XML text
+documents). If you want database connectivity
+(over MySQL or sqlite relational databases), look at the
+<a href="db.html">installation instructions for database connectivity</a>.
+<p>
+First, you need to install the Glasgow Haskell
+Compiler, <a href="http://www.haskell.org/ghc/">ghc</a>.  Optionally,
+if you want to modify the XQuery parser, you need to install the
+parser generator for Haskell,
+<a href="http://www.haskell.org/happy/">happy</a>.  Then,
+download <a href="/HXQ-0.16.0.tar.gz">HXQ version 0.16.0</a> and untar
+it (using <tt>tar xfz</tt> on Linux/Mac
+or <a href="http://www.7-zip.org/">7z x</a> on Windows).  Then,
+you execute the following commands inside the HXQ directory:
+<pre>
+runhaskell Setup.lhs configure
+runhaskell Setup.lhs build
+runhaskell Setup.lhs install
+</pre>
+On linux, the last command must be run as root.
+HXQ consists of the executable <tt>xquery</tt>, which is the XQuery interpreter, and the
+HXQ library.  To use the HXQ library in a Haskell program,
+simply <tt>import Text.XML.HXQ.XQuery</tt>.
+<p>
+<h2><a href="db.html">Installation Instructions for Database Connectivity</a></h2>
+<p>
+<p>
+<h2>Current Status</h2>
+<p>
+HXQ supports most essential XQuery features, although some system
+functions are missing (but are easy to add).  
+Note that HXQ is a proof-of-concept (prototype) implementation; it's not
+fully compliant with the W3C specs. One may use HXQ as a basis
+for a fully compliant XQuery implementation (conforming to W3C test suits),
+but currently I do not have the time to do so. To see the list of
+supported system functions, run <tt>xquery -help</tt>. Here are
+some important differences between HXQ and the W3C specs:
+<ul>
+<li> HXQ does not do static typechecking and ignores function types,
+although it supports type testing and casting using
+the XQuery expressions: typeswitch, instance-of, cast-as, etc.
+<li> HXQ provides very little support for namespaces. For example, two QNames,
+<tt>s1:tag</tt> and <tt>s2:tag</tt>, are different in HXQ
+even when <tt>s1</tt> and <tt>s2</tt> are different prefixes
+of the same namespace.
+<li> The XQuery semantics requires duplicate elimination and
+sorting by document order for every XPath step, which is very
+expensive and unnecessary in most cases.  This is not currently
+supported by HXQ but will be addressed in the future (needs a static
+analysis to determine when duplicate elimination is necessary).  For
+example, <tt>e//*//*</tt> may return duplicate elements in HXQ.
+<li> Currently, the <tt>doc</tt> function works on local
+XML documents only, rather than general URIs. This can be easily fixed
+by using the Haskell Network.HTTP.Simple library.
+</ul>
+<p>
+<h2>XQuery Documentation</h2>
+<p>
+The complete XQuery syntax in HXQ is described in <a href="hxq-manual.pdf">hxq-manual.pdf</a>.
+Here some tutorials on <a href="http://lambda.uta.edu/cse6339/queries2.pdf">XPath</a>
+and <a href="http://lambda.uta.edu/cse6339/xquery2.pdf">XQuery</a>.
+Here are two relevant courses on XML and databases at <a href="http://www.stanford.edu/class/cs345b/">Stanford</a>
+and <a href="http://www.dbis.ethz.ch/education/ws0708/xml_db_ws2007">ETH</a>.
+A nice <a href="http://www.ics.uci.edu/community/events/carey/index.php">video lecture on XQuery</a> by Michael Carey.
+<p>
+<h2>Using the Compiler</h2>
+<p>
+The main functions for embedding XQueries in Haskell are:
+<ul>
+<li> <tt>$(xe query) :: XSeq</tt>
+<li> <tt>$(xq query) :: IO XSeq</tt>
+</ul>
+where <tt>query</tt> is a string value (a Haskell expression that
+evaluates to a string <b>at compile-time</b>). They both translate the
+query into Haskell code, which is compiled and optimized into machine
+code directly.  The code that xe generates has type <tt>XSeq</tt> (a
+sequence of XML trees of type <tt>[XTree]</tt>) while the code that xq
+generates has type <tt>(IO XSeq)</tt>. If the query reads a
+document (using doc(...)) or calls an external function, then you should use xq since it requires
+IO. You can use the value of a Haskell variable <tt>v</tt> inside
+a query using <tt>$v</tt> as long as <tt>v</tt> has
+type <tt>XSeq</tt>.  To call a function in a query, it should be
+defined in Haskell with type <tt>(XSeq,...,XSeq) -&gt IO XSeq</tt>.
+<p>
+Here is an example of a main program:
+<pre>
+f(x,y) = $(xq "&lt;article&gt;&lt;first&gt;{$x}&lt;/first&gt;&lt;second&gt;{$y}&lt;/second&gt;&lt;/article&gt;")
+
+main = do a &lt;- $(xq "&lt;result&gt;{                                                         /
+                 /       for $x at $i in doc('data/dblp.xml')//inproceedings           /
+                 /       where $x/author = 'Leonidas Fegaras'                          /
+                 /       order by $x/year descending                                   /
+                 /       return &lt;paper&gt;{ $i, ') ', $x/booktitle/text(),                /
+                 /                       ': ', $x/title/text()                         /
+                 /              }&lt;/paper&gt;                                              /
+                 /    }&lt;/result&gt;                                                       ")
+          putXSeq a
+          b &lt;- $(xq " f( $a/paper[10], $a/paper[8] ) ")
+          putXSeq b
+</pre>
+Another example, can be found in <a href="Test1.hs">Test1.hs</a>. You compile it using
+<tt>ghc -O2 --make Test1.hs -o a.out</tt>.
+Using the latest ghc (version >= 6.9), one may use <a href="http://haskell.org/haskellwiki/Quasiquotation">quasi-quotations</a>
+instead of strings, as is shown in <a href="Test2a.hs">Test2a.hs</a>.
+<p>
+You can compile an XQuery file into a Haskell program
+(<tt>Temp.hs</tt>) using <tt>xquery -c file</tt>. Or better, you can
+use the script <tt>compile</tt> (on Unix/Mac or Windows) to compile the XQuery file
+to an executable. For example:
+<pre>
+compile data/q1.xq
+</pre>
+will compile the XQuery file <a href="data/q1.xq">data/q1.xq</a> into the executable <tt>a.out</tt>.
+<p>
+<h2>Using the Interpreter</h2>
+<p>
+The HXQ interpreter is far more slower than the compiler; use it only
+if you need to evaluate ad-hoc XQueries read from input or from files.
+The only function is:
+<pre>
+xquery :: String -&gt; IO XSeq
+</pre>
+which evaluates an XQuery in a string.
+The HXQ interpreter doesn't recognize Haskell variables and functions
+(but you may declare XQuery variables and functions using the XQuery
+'declare' syntax). The main HXQ program, called <tt>xquery</tt>,
+evaluates an XQuery in a file using the interpreter. For example:
+<pre>
+xquery data/q1.xq
+</pre> Without an argument, it reads and evaluates XQueries and
+variable/function declarations from input.  With <tt>xquery -p
+xpath-query xml-file</tt> you can evaluate an XPath query against an XML
+file. For example, 
+<pre>
+xquery -p "//inproceedings[100]" data/dblp.xml
+</pre>
+With <tt>xquery -help</tt> you get the list of system functions and
+usage information.
+<p>
+<hr>
+<p>
+<address>Last modified: 01/17/09 by <a href="http://lambda.uta.edu/">Leonidas Fegaras</a></address>

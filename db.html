@@ -1,0 +1,198 @@
+<html>
+<head>
+<link rel="shortcut icon" href="http://haskell.org/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="http://haskell.org/favicon.ico" type="image/x-icon" />
+<title>HXQ with Database Connectivity</title>
+</head>
+<body>
+<center>
+<h1>HXQ with Database Connectivity</h1>
+<h3>Download <a href="/HXQ-0.16.0.tar.gz">HXQ-0.16.0.tar.gz</a></h3>
+</center>
+<p>
+<h2>Installation Instructions (HXQ with database connectivity)</h2>
+<p>
+You may use either MySQL or sqlite.
+The best is MySQL through an ODBC driver. The easiest to install
+is sqlite but it cannot be used to store large XML files.
+<p>
+<h3>Installation with MySQL</h3>
+<p>
+Here is a <a href="http://www.yolinux.com/TUTORIALS/LinuxTutorialMySQL.html">MySQL on Linux Tutorial</a>.
+To install the <a href="http://dev.mysql.com/">MySQL</a> database server and the MySQL/ODBC driver on Linux you do:
+<pre>
+yum install mysql mysql-devel mysql-server unixODBC-devel mysql-connector-odbc
+</pre>
+and you may use the following sample top-level file <tt>.odbc.ini</tt>:
+<pre>
+[ODBC Data Sources]
+HXQ     = MyODBC 3.51 Driver DSN
+
+[HXQ]
+Driver       = /usr/lib/libmyodbc3.so
+Description  = Connector/ODBC 3.51 Driver DSN
+user=root
+password=xxxxx
+option=262144
+</pre>
+(Make sure that your username/password works and that the Driver has the correct path.)
+Then, start the mysql server (using <tt>service mysqld start</tt> as root on Linux)
+and create a database using the mysql command
+<tt>create database hxq</tt>.
+<p>
+Then, you need to install the Haskell packages:
+<a href="http://hackage.haskell.org/cgi-bin/hackage-scripts/package/HDBC">HDBC</a>
+and the
+<a href="http://hackage.haskell.org/cgi-bin/hackage-scripts/package/HDBC-odbc">HDBC-odbc</a> driver.
+Then you do:
+<pre>
+runhaskell Setup.lhs configure -fmysql
+runhaskell Setup.lhs build
+runhaskell Setup.lhs install
+</pre>
+<p>
+<h3>Installation with sqlite</h3>
+<p>
+To use sqlite, you need to install <a href="http://sqlite.org/">SQLite</a>.
+On Linux, you can install it using <tt>yum install sqlite</tt>.
+Then you need to install the Haskell packages:
+<a href="http://hackage.haskell.org/cgi-bin/hackage-scripts/package/HDBC">HDBC</a>
+and the
+<a href="http://hackage.haskell.org/cgi-bin/hackage-scripts/package/HDBC-sqlite3">HDBC-sqlite3</a> driver.
+Then you do:
+<pre>
+runhaskell Setup.lhs configure -fsqlite
+runhaskell Setup.lhs build
+runhaskell Setup.lhs install
+</pre>
+<p>
+<h2>Working with Databases</h2>
+<p>
+HXQ provides an interface to HDBC to query relational data inside an XQuery.
+For the HXQ compiler, the main function that allows database connectivity is:
+<pre>
+$(xqdb query) :: Connection -> IO XSeq
+</pre>
+For example, if the database name is "hxq", then
+<pre>
+do db <- connect "hxq"
+   result <- $(xqdb xquery) db
+</pre>
+For the HXQ interpreter, the function is:
+<pre>
+xqueryDB :: String -> Connection -> IO XSeq
+</pre>
+The <tt>xquery</tt> executable can also run XQueries that use a database by
+specifying the database name using the -db option, eg. <tt>xquery -db hxq</tt>.
+<p>
+<h2>Querying an Existing Database</h2>
+<p>
+An XQuery may contain multiple SQL queries in the
+form <tt>sql(query,args)</tt>, where <tt>query</tt> is the sql query
+that may contain parameters (denoted by ?), which are bound to the
+values in <tt>args</tt> (an XSeq).  An example can be found
+in <a href="TestDB.hs">TestDB.hs</a>. To run this example, you need to
+install the <a href="data/company.sql">company</a> database
+(using <tt>source data/company.sql</tt> in mysql or
+<tt>.read data/company.sql</tt> in sqlite3)
+and then compile and run <tt>TestDB.hs</tt>.
+<p>
+<h2>Shredding</h2>
+<p>
+To synthesize a relational schema <tt>schemaname</tt> to store an XML document
+located at <tt>pathname</tt>, use the following Haskell function:
+<pre>
+genSchema :: Connection -> String -> String -> [String] -> IO ()
+genSchema db pathname schemaname excludedtags
+</pre>
+for a database <tt>db</tt>, where the excluded tags are HTML tags to be ignored (skipped)
+when the XML data are document-centric.
+HXQ will find a good relational schema (using hybrid inlining) to store the XML data by
+scanning the document to extract its structural summary and then
+deriving a good relational schema from the summary.
+To actually store the data from the XML document into the relational schema, use the following Haskell function:
+<pre>
+shred :: Connection -> String -> String -> IO ()
+shred db pathname schemaname
+</pre>
+For example,
+<pre>
+do db <- connect "hxq"
+   genSchema db "data/cs.xml" "c" []
+   shred db "data/cs.xml" "c"
+</pre>
+For large XML documents, you better use the compiled version of <tt>shred</tt>:
+<pre>
+$(shredC dbname pathname schemaname)
+</pre>
+<p>
+The Haskell function
+<pre>
+printSchema db schemaname
+</pre>
+displays the relational schema for the shredded document under the given schemaname, while
+<pre>
+createIndex db schemaname tagname
+</pre>
+creates a secondary index on tagname for the shredded document.
+<p>
+<h2>Publishing</h2>
+<p>
+You can query a shredded XML document using the XQuery function:
+<pre>
+publish(dbame,schemaname)
+</pre>
+where dbname is the database file name and schemaname is the unique schema name
+assigned to the XML document when was shredded.  The translation from
+XQuery to SQL is done at compile-time, so both dbname and schemaname must be
+constant strings.  HXQ will do its best to push relevant predicates to
+the generated SQL query (using partial evaluation and code folding),
+thus deriving an efficient execution. One example
+is <a href="TestDB2.hs">TestDB2.hs</a>.
+<p>
+<h2>Updates</h2>
+<p>
+The XQuery syntax has been extended with the following expressions in HXQ:
+<pre>
+   insert e1 into e2
+   delete from e
+   replace e2 with e1
+</pre>
+where <tt>e2</tt> and <tt>e</tt> are XQuery expressions that return XML elements extracted from shredded documents stored in the relational database.
+That is, you can not update XML text files or constructed XML elements.
+In addition, <tt>e2</tt> must return a singleton sequence (exactly one XML element) and
+the returned XML sequence from <tt>e1</tt> must be compatible to the document structural summary at the point of the update.
+These updates are evaluated using SQL updates
+over the underlying relational database. They all return <tt>()</tt>.
+The insert expression makes <tt>e1</tt> a new child of <tt>e2</tt>.
+The delete expression removes the element <tt>e</tt> from its parent.
+The replace expression replaces <tt>e2</tt> with <tt>e1</tt>.
+These updates are not automatically committed; the programmer must commit them explicitly using the <tt>commit db</tt> function.
+(The <tt>xquery</tt> program though commits at the end of each xquery automatically.)
+<p>
+Examples of updates:
+<pre>
+replace publish('hxq','c')//gradstudent[name/lastname="Smith"]/gpa with 3.7
+insert &lt;zip&gt;12345&lt;/zip&gt; into publish('hxq','c')//gradstudent[name/lastname="Smith"]/address
+for $e in publish('hxq','e')//employee return replace $e/salary with $e/salary*1.5
+</pre>
+<p>
+<h2>Example: Installing and Querying the DBLP Database</h2>
+<p>
+First download and uncompress <tt>dblp.xml.gz</tt> from <a href="http://dblp.uni-trier.de/xml/">DBLP</a>.
+To install the DBLP database using MySQL, compile and execute
+<a href="TestDBLP1.hs">TestDBLP1.hs</a> first (using ghc options <tt>+RTS -H200m -K100m</tt>) and then
+<a href="TestDBLP2.hs">TestDBLP2.hs</a>.
+Then, you may evaluate queries, such as <a href="data/q4.xq">data/q4.xq</a>, using the HXQ interpreter,
+<tt>xquery -db hxq -t data/q4.xq</tt>, which takes about 90 milliseconds.
+<p>
+<h2>Status</h2>
+<p>
+<ul>
+<li> XML elements are not stored in document order. Thus, element indexing may return unpredictable results.
+<li> HXQ does better job in stroring data-centric than document-centric XML data (especially those with  mixed content).
+</ul>
+<p>
+<hr>
+<p>
+<address>Last modified: 01/17/09 by <a href="http://lambda.uta.edu/">Leonidas Fegaras</a></address>

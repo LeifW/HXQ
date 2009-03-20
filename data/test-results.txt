@@ -1,0 +1,208 @@
+Query 1:
+ 10 
+ Query 2:
+ 100 
+ Query 3:
+ 1 2 3 
+ Query 4:
+ 1 2 3 
+ Query 5:
+ 4 5 6 7 8 9 
+ Query 6:
+<a>12<b>4 4518</b></a> 
+ Query 7:
+<a x="12 534"/> 
+ Query 8:
+ 100 
+ Query 9:
+ 5050 
+ Query 10:
+ 50.5 
+ Query 11:
+ true 
+ Query 12:
+ false 
+ Query 13:
+ 6 
+ Query 14:
+<z><a>1</a><a>2</a><a>3</a></z> 
+ Query 15:
+ 3 4 
+ Query 20:
+ 5 6 6 7 7 8 
+ Query 21:
+<a>1 4</a><a>1 5</a><a>2 4</a><a>2 5</a><a>3 4</a><a>3 5</a> 
+ Query 24:
+<b>1</b><b>2</b> 
+ Query 24.1:
+<b>1</b> 
+ Query 25:
+<a><b>2</b></a> 
+ Query 27:
+<a>11 12 23 24</a> 
+ Query 28:
+<a>1 2</a> 
+ Query 29:
+ 58 
+ Query 30:
+ 29 
+ Query 31:
+ 1 
+ Query 32:
+ 3628800 
+ Query 33:
+<a>1</a><a>2</a><a>3</a> 
+ Query 34:
+ x="aa" 
+ Query 35:
+ aa bb cc 
+ Query 36:
+ x y v 
+ Query 37:
+<b>
+   <d>K6</d> 
+   <c>test6</c> 
+   <c>test22</c> 
+ </b> 
+ Query 38:
+<d>4</d><d>5</d> 
+ Query 39:
+<n>title</n> 
+ Query 40:
+<c>test4</c><c>test5</c> 
+ Query 40.1:
+<c v="aa">test1</c><c>test2</c><c>test3</c><c>test4</c><c>test5</c> 
+ Query 41:
+<d>K3</d> 
+ Query 42:
+<b>
+   <d>K3</d> 
+   <c>test3</c> 
+ </b> 
+ Query 43:
+<b>
+   <d>K3</d> 
+   <c>test3</c> 
+ </b> 
+ Query 44:
+ test1 test12 test13 
+ Query 45:
+<c>test3</c> 
+ Query 46:
+<c>test3</c> 
+ Query 47:
+<c>test3</c> 
+ Query 48:
+<d>K3</d><c>test3</c> 
+ Query 49:
+<d>K3</d> 
+ Query 50:
+<c>test3</c> 
+ Query 51:
+<d>K3</d><c>test3</c> 
+ Query 52:
+<d>4</d><c>test4</c><e><x><y>NN</y> AA</x> BB<x>CC</x></e><x><y>NN</y> AA</x><y>NN</y><x>CC</x> 
+ Query 53:
+<c>test1</c><c>test12</c><c>test13</c><c>test2</c><c>test3</c><c>test4</c><c>test5</c><c>test6</c><c>test22</c> 
+ Query 54:
+<c>test1</c><c>test12</c><c>test13</c><d>K1</d><c>test2</c><d>K2</d><c>test3</c><d>K3</d><c>test4</c><d>K4</d><c>test5</c><d>K5</d><c>test6</c><c>test22</c><d>K6</d> 
+ Query 55:
+<c>test4</c><c>test5</c> 
+ Query 56:
+<b>
+   <d>K3</d> 
+   <c>test3</c> 
+ </b> 
+ Query 57:
+<b>
+   <d>K6</d> 
+   <c>test6</c> 
+   <c>test22</c> 
+ </b> 
+ Query 58:
+<d>K3</d><d>K3</d> 
+ Query 59:
+<d>K3</d> @ 
+ Query 60:
+<d>K3</d> @ 
+ Query 61:
+ 4 
+ Query 62:
+ 4 
+ Query 63:
+<a><c>test1</c><c>test12</c><c>test13</c><c>test2</c><c>test3</c><c>test4</c><c>test5</c><c>test6</c><c>test22</c> 1 2 3</a> 
+ Query 64:
+<result><d>K3</d></result> 
+ Query 65:
+<k><d>K1</d><c>test1</c><d>K1</d></k><k><d>K1</d><c>test12</c><d>K1</d></k><k><d>K1</d><c>test13</c><d>K1</d></k><k><d>K2</d><c>test2</c><d>K2</d></k><k><d>K3</d><c>test3</c><d>K3</d></k><k><d>K4</d><c>test4</c><d>K4</d></k><k><d>K5</d><c>test5</c><d>K5</d></k><k><d>K6</d><c>test6</c><d>K6</d></k><k><d>K6</d><c>test22</c><d>K6</d></k> 
+ Query 66:
+<k><c>test1</c><d>K1</d></k><k><c>test12</c><d>K1</d></k><k><c>test13</c><d>K1</d></k><k><c>test2</c><d>K2</d></k><k><c>test3</c><d>K3</d></k><k><c>test4</c><d>K4</d></k><k><c>test5</c><d>K5</d></k><k><c>test6</c><d>K6</d></k><k><c>test22</c><d>K6</d></k> 
+ Query 67:
+<result><a><c>test1</c><c>test12</c><c>test13</c><d>K1</d></a><a><c>test2</c><d>K2</d></a><a><c>test3</c><d>K3</d></a><a><c>test4</c><d>K4</d></a><a><c>test5</c><d>K5</d></a><a><c>test6</c><c>test22</c><d>K6</d></a></result> 
+ Query 68:
+<c>test5</c> 
+ Query 69:
+<a><c>test3</c> test3</a> 
+ Query 70:
+<a>test3 K3</a> 
+ Query 71:
+ false 
+ Query 72:
+ false 
+ Query 73:
+ 2 2 3 4 4 4 6 6 7 8 
+ Query 74:
+ test1 test12 test13 test2 test3 test4 test5 test6 test22 
+ Query 75:
+ test6 test22 test5 test4 test3 test2 test1 test12 test13 
+ Query 76:
+ 3 1 1 1 1 2 
+ Query 77:
+<d>K2</d> 1<d>K3</d> 1<d>K4</d> 1<d>K5</d> 1<d>K6</d> 2<d>K1</d> 3 
+ Query 78:
+ 1 1   1 2   1 3   1 4   1 5   2 1   2 2   2 3   2 4   2 5   3 1   3 2   3 3   3 4   3 5   4 1   4 2   4 3   4 4   4 5   5 1   5 2   5 3   5 4   5 5   
+ Query 80:
+<gpa>3.5</gpa> 
+ Query 81:
+ Ashraf   Aboulnaga   4.0 
+ Anastasia   Ailamaki   4.0 
+ Jim   Basney   4.0 
+ Neoklis   Polyzotis   4.0 
+ Sridhar   Reddy   4.0 
+ Kevin   Beyer   4.0 
+ Adam   Butts   4.0 
+ Todd   Bezenek   4.0 
+ Gregory   Deych   4.0 
+ Fan   Yang   4.0 
+ Donko   Donjerkovic   4.0 
+ Glenn   Fung   4.0 
+ Andrew   Glew   4.0 
+ Anurag   Gupta   4.0 
+ Jussara   Almeida   3.5 
+ Leonidas   Galanis   3.5 
+ Chee-Yong   Chan   3.5 
+ Richard   Chang   3.5 
+ Mark   Dreyfuss   3.5 
+ Paul   Finley   3.5 
+ David   Finton   3.5 
+ James   Gast   3.5 
+ 
+ Query 82:
+<a>1 2</a> 
+ Query 83:
+<d>K2</d> 
+ Query 84:
+<c>test3</c> 
+ Query 85:
+<result><b>
+   <d>K2</d> 
+   <c>test2</c> 
+ </b><b>
+   <d>K2</d> 
+   <c>test2</c> 
+ </b></result> 
+ Query 86:
+<gpa>3.5</gpa> 453 
+ Query 87:
+ K1 K2 K3 K4 K5 K6 
+

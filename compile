@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xquery -c $1
+if [$2 == ""]; then file="a.out"; else file=$2; fi
+ghc -O2 -v0 -funfolding-use-threshold=16 --make Temp.hs -o $file
