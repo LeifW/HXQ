@@ -81,6 +81,7 @@ showXT e pad
         XBool v -> p++if v then "true" else "false"
         XComment s -> "<!--"++s++"-->"
         XPI n s -> "<?"++n++" "++s++">"
+        XGERef s -> '&':s++";"		-- ^ general entity reference
         XError s -> error s
         XNull -> "?"
         XType tp -> show tp
