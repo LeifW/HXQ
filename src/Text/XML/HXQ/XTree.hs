@@ -75,7 +75,7 @@ showXT e pad
         XElem tag al _ _ xs | all emptyElem xs -> "<"++tag++showAL al++"/>"
         XElem tag al _ _ xs -> "<"++tag++showAL al++">"++showXS xs++"</"++tag++">"
         XAttr tag val -> p++tag++"=\""++val++"\""
-        XText text -> p++text
+        XText text -> p ++ textEscape text
         XInt n -> p++show n
         XFloat n -> p++show n
         XBool v -> p++if v then "true" else "false"
@@ -96,6 +96,14 @@ showXS (x:xs) = showXT x False ++ sXS xs
 
 instance Show XTree where
     show t = showXT t False
+
+textEscape []  = []
+textEscape (c:cs)  =
+    case c of
+	'<'	-> "&lt;" ++ textEscape cs 
+	'>'	-> "&gt;" ++ textEscape cs 
+	'&'	-> "&amp;" ++ textEscape cs 
+	_	-> c : textEscape cs 
 
 
 -- | Print the XQuery result (which is a sequence of XML fragments) without buffering.
