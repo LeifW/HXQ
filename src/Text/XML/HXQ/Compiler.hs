@@ -36,11 +36,41 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 #endif
 
+import Data.Char (intToDigit)
+import Network.HTTP
+import Network.URI
+import System.Environment (getArgs)
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 
--- need to handle URIs too
+err :: String -> IO a
+err msg = do 
+	  hPutStrLn stderr msg
+	  exitFailure
+
+get :: URI -> IO String
+get uri =
+    do
+    eresp <- simpleHTTP (request uri)
+    resp <- handleE (err . show) eresp
+    case rspCode resp of
+                      (2,0,0) -> return (rspBody resp)
+                      _ -> err (httpError resp)
+    where
+    showRspCode (a,b,c) = map intToDigit [a,b,c]
+    httpError resp = showRspCode (rspCode resp) ++ " " ++ rspReason resp
+
+request :: URI -> Request [Char]
+request uri = Request{ rqURI = uri,
+                       rqMethod = GET,
+                       rqHeaders = [],
+                       rqBody = "" }
+
+handleE h (Left e) = h e
+handleE _ (Right v) = return v
+
 uploadFile :: String -> IO String
-uploadFile path
-    = readFile path
+uploadFile uri = maybe (readFile uri) get (parseURI uri)
 
 
 undef1 = [| error "Undefined XQuery context (.)" |]
