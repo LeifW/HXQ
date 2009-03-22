@@ -70,7 +70,7 @@ Library
                        Text.XML.HXQ.Functions, Text.XML.HXQ.Compiler, Text.XML.HXQ.Interpreter,
                        Text.XML.HXQ.Optimizer, Text.XML.HXQ.OptionalDB, Text.XML.HXQ.Parser
   hs-source-dirs:      . src src/hxml-0.2
-  Build-Depends:       base, haskell98, array, regex-base, regex-compat, template-haskell
+  Build-Depends:       base, haskell98, array, regex-base == 0.72.0.2, regex-compat, template-haskell, network, HTTP
   ghc-options:         -funfolding-use-threshold=16
   if impl(ghc < 6.10)
      Build-Depends:    readline
