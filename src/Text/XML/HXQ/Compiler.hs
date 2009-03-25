@@ -40,13 +40,12 @@ import Data.Char (intToDigit)
 import Network.HTTP
 import Network.URI
 import System.Environment (getArgs)
-import System.Exit (exitFailure)
+--import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 
 err :: String -> IO a
 err msg = do 
 	  hPutStrLn stderr msg
-	  exitFailure
 
 get :: URI -> IO String
 get uri =
