@@ -19,7 +19,7 @@
 
 module Text.XML.HXQ.Compiler
     ( xe, xq, xqdb, maxPosition, containsLast, qName, qx,
-      parent_error, pathPosition, liftIOSources, uploadFile ) where
+      parent_error, pathPosition, liftIOSources, getURI ) where
 
 import Text.XML.HXQ.Parser
 import Text.XML.HXQ.XTree
@@ -31,45 +31,11 @@ import XMLParse(parseDocument)
 import Text.XML.HXQ.Optimizer
 import Text.XML.HXQ.Functions
 import Text.XML.HXQ.Types
+import Text.XML.HXQ.GetURI(getURI)
 import Language.Haskell.TH
 #if __GLASGOW_HASKELL__ >= 609
 import Language.Haskell.TH.Quote
 #endif
-
-import Data.Char (intToDigit)
-import Network.HTTP
-import Network.URI
-import System.Environment (getArgs)
---import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr)
-
-err :: String -> IO a
-err msg = do 
-	  hPutStrLn stderr msg
-
-get :: URI -> IO String
-get uri =
-    do
-    eresp <- simpleHTTP (request uri)
-    resp <- handleE (err . show) eresp
-    case rspCode resp of
-                      (2,0,0) -> return (rspBody resp)
-                      _ -> err (httpError resp)
-    where
-    showRspCode (a,b,c) = map intToDigit [a,b,c]
-    httpError resp = showRspCode (rspCode resp) ++ " " ++ rspReason resp
-
-request :: URI -> Request [Char]
-request uri = Request{ rqURI = uri,
-                       rqMethod = GET,
-                       rqHeaders = [],
-                       rqBody = "" }
-
-handleE h (Left e) = h e
-handleE _ (Right v) = return v
-
-uploadFile :: String -> IO String
-uploadFile uri = maybe (readFile uri) get (parseURI uri)
 
 
 undef1 = [| error "Undefined XQuery context (.)" |]
@@ -392,8 +358,7 @@ compileM e context position last effective_axis
           -> [| return $last |]
       Ast "call" [Avar f,Astring file]
           | elem f ["doc","fn:doc"]
-          -> [| do doc <- uploadFile file
-                   return [materialize False (parseDocument doc)] |]
+          -> [| getURI file >>= return . maybe [] (\doc->[materialize False (parseDocument doc)]) |]
       Ast "step" (Avar "child":tag:Avar ".":preds)
           | effective_axis /= ""
           -> compileM (Ast "step" (Avar effective_axis:tag:Avar ".":preds)) context position last ""
@@ -653,8 +618,8 @@ compileQueryM (query:xs)
                                                      $(varE (mkName "_db"))
                                                      $(litE (StringL sql))) >>= $d |]
                                    _ -> [| do let [XText f] = $(compileAst e)
-                                              doc <- uploadFile f
-                                              $d [materialize $bc (parseDocument doc)] |])
+                                              res <- getURI f
+                                              $d maybe [] (\doc->[materialize $bc (parseDocument doc)]) res |])
                [| (liftM2 (++)) $code $rest |] ns
 compileQueryM [] = [| return [] |]
 
