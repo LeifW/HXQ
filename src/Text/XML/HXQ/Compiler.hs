@@ -358,7 +358,7 @@ compileM e context position last effective_axis
           -> [| return $last |]
       Ast "call" [Avar f,Astring file]
           | elem f ["doc","fn:doc"]
-          -> [| getURI file >>= return . maybe [] (\doc->[materialize False (parseDocument doc)]) |]
+          -> [| getURI file >>= return . (\doc->[materialize False (parseDocument doc)]) |]
       Ast "step" (Avar "child":tag:Avar ".":preds)
           | effective_axis /= ""
           -> compileM (Ast "step" (Avar effective_axis:tag:Avar ".":preds)) context position last ""
@@ -619,7 +619,7 @@ compileQueryM (query:xs)
                                                      $(litE (StringL sql))) >>= $d |]
                                    _ -> [| do let [XText f] = $(compileAst e)
                                               res <- getURI f
-                                              $d maybe [] (\doc->[materialize $bc (parseDocument doc)]) res |])
+                                              $d [materialize $bc (parseDocument res)] |])
                [| (liftM2 (++)) $code $rest |] ns
 compileQueryM [] = [| return [] |]
 

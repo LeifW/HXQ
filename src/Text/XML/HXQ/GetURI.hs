@@ -5,21 +5,23 @@ import Network.HTTP
 import Network.URI
 import System.IO (hPutStrLn, stderr)
 
-err :: String -> IO (Maybe String)
+err :: String -> IO (String)
 err msg = do 
           hPutStrLn stderr msg
-          return Nothing
+          return ""
 
-get :: URI -> IO (Maybe String)
+get :: URI -> IO (String)
 get uri =
     do
     resp <- simpleHTTP (request uri)
     either (err . show) parseResponse resp
 
-parseResponse :: Response String ->IO (Maybe String)
+parseResponse :: Response String ->IO (String)
 parseResponse resp = 
     case rspCode resp of
-                      (2,0,0) -> return $ Just (rspBody resp)
+                      (2,0,0) -> return $ (rspBody resp)
+                      (3,0,1) -> maybe (return "") getURI (lookupHeader HdrLocation (rspHeaders resp))
+                      (3,0,2) -> maybe (return "") getURI (lookupHeader HdrLocation (rspHeaders resp))
                       _ -> err (httpError resp)
     where
     showRspCode (a,b,c) = map intToDigit [a,b,c]
@@ -32,7 +34,7 @@ request uri = Request{ rqURI = uri,
                        rqHeaders = [],
                        rqBody = "" }
 
-getURI :: String -> IO (Maybe String)
-getURI uri = maybe (readFile uri >>= return . Just) get (parseURI uri)
+getURI :: String -> IO (String)
+getURI uri = maybe (readFile uri) get (parseURI uri)
 
 

@@ -68,7 +68,7 @@ Library
   Other-Modules:       HXML, ETree, Misc, Tree, AssocList, PrintXML, XML, TreeBuild, DTD, XMLScanner, LLParsing, XMLParse,
                        Readline, Text.XML.HXQ.XTree, Text.XML.HXQ.Types,
                        Text.XML.HXQ.Functions, Text.XML.HXQ.Compiler, Text.XML.HXQ.Interpreter,
-                       Text.XML.HXQ.Optimizer, Text.XML.HXQ.OptionalDB, Text.XML.HXQ.Parser
+                       Text.XML.HXQ.Optimizer, Text.XML.HXQ.OptionalDB, Text.XML.HXQ.Parser, Text.XML.HXQ.GetURI
   hs-source-dirs:      . src src/hxml-0.2
   Build-Depends:       base, haskell98, array, regex-base == 0.72.0.2, regex-compat, template-haskell, network, HTTP
   ghc-options:         -funfolding-use-threshold=16

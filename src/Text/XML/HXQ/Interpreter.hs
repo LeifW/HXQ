@@ -232,7 +232,7 @@ evalM e context position last effective_axis env fncs db stmts
       Ast "call" [Avar f,Astring file]
           | elem f ["doc","fn:doc"]
           -> do res <- getURI file
-                return $! maybe [] (\doc->[materialize False (parseDocument doc)]) res
+                return $! [materialize False (parseDocument res)] 
       Ast "call" [Avar "debug",c]
           -> do ec <- evalM c context position last effective_axis env fncs db stmts
                 debugSession ec env fncs db
@@ -429,7 +429,7 @@ evalQueryM (query:xs) variables functions db verbose
                                               Astring file
                                                   -> do res <- getURI file
                                                         env <- r
-                                                        return $! ((n,maybe [] (\doc->[materialize b (parseDocument doc)]) res):env)
+                                                        return $! ((n,[materialize b (parseDocument res)] ):env)
                                               _ -> r)
                              (return []) ns
                 stmts <- foldr (\(n,_,s) r -> case s of
